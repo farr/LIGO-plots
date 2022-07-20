@@ -1,0 +1,10 @@
+name: ligo
+channels:
+  - defaults
+dependencies:
+  - jupyterlab
+  - python=3
+  - lalsuite
+  - astropy
+  - seaborn
+prefix: /Users/wfarr/miniconda3/envs/ligo
