@@ -1,5 +1,6 @@
 name: ligo
 channels:
+  - conda-forge
   - defaults
 dependencies:
   - jupyterlab
@@ -7,4 +8,6 @@ dependencies:
   - lalsuite
   - astropy
   - seaborn
+  - ipywidgets
+  - arviz
 prefix: /Users/wfarr/miniconda3/envs/ligo
