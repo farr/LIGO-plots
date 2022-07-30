@@ -10,4 +10,7 @@ dependencies:
   - seaborn
   - ipywidgets
   - arviz
+  - bilby
+  - ptemcee
+  - gwpy
 prefix: /Users/wfarr/miniconda3/envs/ligo
