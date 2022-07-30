@@ -130,3 +130,6 @@ dmypy.json
 
 # Pickles
 *.pickle
+
+# Output
+GW150914-outdir
