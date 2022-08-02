@@ -132,5 +132,7 @@ dmypy.json
 *.pickle
 
 # Output
-GW150914-outdir
-GW150914-coordinates-outdir
+*outdir*
+
+*.npz
+*.nc
