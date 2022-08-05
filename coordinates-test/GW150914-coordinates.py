@@ -83,6 +83,14 @@ priors['rad_x'] = bilby.core.prior.Normal(0,1,name='rad_x')
 priors['rad_y'] = bilby.core.prior.Normal(0,1,name='rad_y')
 priors['rad_z'] = bilby.core.prior.Normal(0,1,name='rad_z')
 
+del priors['phi_12']
+priors['phi_12_x'] = bilby.core.prior.Normal(0,1,name='phi_12_x')
+priors['phi_12_y'] = bilby.core.prior.Normal(0,1,name='phi_12_y')
+
+del priors['phi_jl']
+priors['phi_jl_x'] = bilby.core.prior.Normal(0,1,name='phi_jl_x')
+priors['phi_jl_y'] = bilby.core.prior.Normal(0,1,name='phi_jl_y')
+
 # Add the geocent time prior
 priors["geocent_time"] = bilby.core.prior.Uniform(
     trigger_time - 0.1, trigger_time + 0.1, name="geocent_time"
