@@ -289,6 +289,17 @@ if __name__ == '__main__':
             plt.savefig(op.join(outdir, 'flat-trace.png'))
             plt.close()
 
+            # Let's make a plot that shows the convergence (or lack thereof)
+            plt.figure()
+            c = ptsampler.chain[0,...]
+            mu = np.mean(c, axis=0)
+            mu_mu = np.mean(mu, axis=0)
+            mu_std = np.std(mu, axis=0)
+            for k in range(mu.shape[1]):
+                plt.plot((mu[:,k]-mu_mu[k])/mu_std[k])
+            plt.savefig(op.join(outdir, 'ensemble-means.png'))
+            plt.close()
+
             # The chain is (Ntemp, Nwalker, Nstep, Ndim), so we take the cold chain with
             # `[0,...]` then average over the number of walkers, then put in a "singleton"
             # walker dimension for emcee, which wants (Nstep, Nwalker, Ndim) inputs.

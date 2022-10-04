@@ -26,6 +26,12 @@ files (`checkpoint.nc`) and various status plots as the run progresses:
   increases, this will get smoother and smoother.
 - `flat-trace.png` shows a "flattened" trace where all walkers have been jammed
   together into a single chain; this ultimately reflects the posterior density.
+- `ensemble-means.png` shows how the mean of the ensemble of walkers evolves
+  over the sampling (in standardized---mean zero, standard deviation
+  1---coordinates).  During burnin there will be trends in the evolution of the
+  mean in some parameters; after burnin, but before convergence, there will be
+  correlations from sample to sample, but not evolution; and once the sampler is
+  burned in the mean will fluctuate randomly from sample to sample.
 
 The run will go through a number of phases (sometimes reverting to earlier
 phases if it detects the necessity):
