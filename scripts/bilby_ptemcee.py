@@ -266,24 +266,28 @@ if __name__ == '__main__':
             plt.xlabel(r'Iteration')
             plt.ylabel(r'$\left\langle \log \pi \right\rangle_{\beta = 1}$')
             plt.savefig(op.join(outdir, 'mean-likelihood.png'))
+            plt.close()
 
             plt.figure()
             plt.plot(ptsampler.beta_history.T)
             plt.xlabel(r'Iteration')
             plt.ylabel(r'$\beta$')
             plt.savefig(op.join(outdir, 'beta.png'))
+            plt.close()
 
             idata = az.convert_to_inference_data({k: ptsampler.chain[0, :, :, i] for (i,k) in enumerate(sampler.search_parameter_keys)})
             az.to_netcdf(idata, op.join(outdir, 'checkpoint.nc'))
 
             az.plot_trace(idata)
             plt.savefig(op.join(outdir, 'trace.png'))
+            plt.close()
 
             nt, nw, ns, nd = ptsampler.chain.shape
             flat_chain = ptsampler.chain.reshape((nt, 1, nw*ns, nd))
             flat_idata = az.convert_to_inference_data({k:flat_chain[0,:,:,i] for (i,k) in enumerate(sampler.search_parameter_keys)})
             az.plot_trace(flat_idata)
             plt.savefig(op.join(outdir, 'flat-trace.png'))
+            plt.close()
 
             # The chain is (Ntemp, Nwalker, Nstep, Ndim), so we take the cold chain with
             # `[0,...]` then average over the number of walkers, then put in a "singleton"
