@@ -10,7 +10,10 @@ in the current directory.  Output will appear in `outdir`, including checkpoint
 files (`checkpoint.nc`) and various status plots as the run progresses:
 
 - `beta.png` shows the evolution of the inverse temperatures of the parallel
-  chains versus iteration number as they adapt to the posterior surface.
+  chains versus iteration number as they adapt to the posterior surface.  At
+  first the temperatures will move around alot as they seek to equilibrate the
+  transitions between temperatures in the PT algorithm; eventually they should
+  converge to good values and hold steady for the remainder of the run.
 - `mean-likelihood.png` shows the mean of the likelihood (actually posterior,
   but who's keeping track?) for the `T = 1` (cold) chain's ensemble versus
   iteration number.  Early on, this will be increasing, as the ensemble moves to
