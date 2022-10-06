@@ -233,29 +233,6 @@ if __name__ == '__main__':
             for pos, log_post, log_like in tqdm(ptsampler.sample(pos, storechain=True, iterations=niter*thin, thin=thin, **sampler_kws), total=niter*thin):
                 pass
 
-            lps = ptsampler.logprobability[0,-1,:]
-            mean_log_like = np.mean(lps)
-            se_log_like = np.std(lps)/np.sqrt(len(lps))
-            if mean_log_like > max_mean_log_like + 3*se_log_like:
-                print('resetting sampler due to significant log-likelihood increase')
-                print(f'current mean log(post) = {mean_log_like:.3f} (+/- {se_log_like:.3f})')
-                print('is significantly larger than')
-                print(f'previous best mean log(post) = {max_mean_log_like:.3f}')
-
-                # Reset the sampler
-                thin = 1
-                max_mean_log_like = mean_log_like
-
-                # # Cluster around the high-likelihood point
-                # cov = np.cov(pos[0,:,:], rowvar=False)
-                # bw = cov/1e2 # 10 times smaller
-                # pbest = pos[np.unravel_index(np.argmax(log_like), log_like.shape) + (None,)]
-
-                # pos = np.random.multivariate_normal(pbest.squeeze(), bw, size=log_like.shape)
-                # pos[0,0,:] = pbest.squeeze() # Ensure that the best point ends up in the sampler.
-            else:
-                thin = 2*thin
-
             print('Mean acceptance fraction:')
             print(np.mean(ptsampler.acceptance_fraction, axis=1))
             print()
@@ -307,6 +284,32 @@ if __name__ == '__main__':
                 plt.plot((mu[:,k]-mu_mu[k])/mu_std[k])
             plt.savefig(op.join(outdir, 'ensemble-means.png'))
             plt.close()
+
+            lps = ptsampler.logprobability[0,-1,:]
+            mean_log_like = np.mean(lps)
+            se_log_like = np.std(lps)/np.sqrt(len(lps))
+            if mean_log_like > max_mean_log_like + 3*se_log_like:
+                print('resetting sampler due to significant log-likelihood increase')
+                print(f'current mean log(post) = {mean_log_like:.3f} (+/- {se_log_like:.3f})')
+                print('is significantly larger than')
+                print(f'previous best mean log(post) = {max_mean_log_like:.3f}')
+
+                # Reset the sampler
+                thin = 1
+                max_mean_log_like = mean_log_like
+
+                # Cluster around the high-likelihood point
+                cov = np.cov(pos[0,:,:], rowvar=False)
+                bw = cov/1e2 # 10 times smaller
+                pbest = pos[np.unravel_index(np.argmax(log_like), log_like.shape) + (None,)]
+
+                pos = np.random.multivariate_normal(pbest.squeeze(), bw, size=log_like.shape)
+                pos[0,0,:] = pbest.squeeze() # Ensure that the best point ends up in the sampler.
+
+                continue # Go around again, no convergence checks
+            else:
+                thin = 2*thin
+
 
             if conservative_convergence:
                 # The chain is (Ntemp, Nwalker, Nstep, Ndim), so we take the cold chain with
