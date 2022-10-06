@@ -362,7 +362,7 @@ if __name__ == '__main__':
                 break
             else:
                 np.transpose()
-                tau = emcee.autocorr.integrated_time(ptsampler.chain[0,...].transpose(1,0,2), quiet=True)
+                tau = emcee.autocorr.integrated_time(np.transpose(ptsampler.chain[0,...], (1,0,2)), quiet=True)
                 max_tau = np.max(tau)
                 neff = nw*ns / max_tau
 
