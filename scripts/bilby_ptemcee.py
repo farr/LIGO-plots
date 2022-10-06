@@ -14,6 +14,33 @@ import sys
 from tqdm import tqdm
 import xarray as xr
 
+def act_estimate(chain, c=5):
+    nw, ns, nd = chain.shape
+
+    taus = []
+    for k in range(nd):
+        mu = np.mean(chain[:,:,k])
+        f = np.zeros(ns)
+        for i in range(nw):
+            n = 1
+            while n < 2*nw:
+                n = n << 1
+            x = np.zeros(n)
+            x[:ns] = chain[i,:,k] - mu
+            f += np.fft.irfft(np.square(np.abs(np.fft.rfft(x))))[:ns]
+        f = f / f[0]
+
+        # From Vehtari, et al (2021)
+        P = f[::2] + f[1::2]
+        if np.any(P < 0):
+            kk = np.argmin(P < 0)
+        else:
+            kk = len(P)
+        taus.append(-1 + 2*np.sum(P[:kk]))
+
+    return np.array(taus)
+
+
 # Needed to make the multiprocessing work on my MacBook
 if sys.platform.startswith('darwin'):
     multiprocessing.set_start_method('fork')
@@ -325,17 +352,16 @@ if __name__ == '__main__':
                 converged = True
                 break
             else:
-                ess = az.ess(idata)
-                ess_min = np.inf
-                for k in ess.keys():
-                    ess_min = min(ess_min, ess[k])
+                tau = act_estimate(ptsampler.chain[0,...])
+                max_tau = np.max(tau)
+                neff = nw*ns / max_tau
 
-                if ess_min > converged_ess:
+                if neff < converged_ess:
+                    print(f'Looping with neff = {neff:.0f} < {converged_ess:.0f}')
+                    continue
+                else:
                     converged = True
                     break
-                else:
-                    print(f'Looping with min_ess = {ess_min:.0f} < {converged_ess:.0f}')
-                    continue
 
     chain = {}
     for k in sampler.search_parameter_keys:
