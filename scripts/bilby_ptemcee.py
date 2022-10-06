@@ -285,7 +285,7 @@ if __name__ == '__main__':
             plt.savefig(op.join(outdir, 'ensemble-means.png'))
             plt.close()
 
-            lps = ptsampler.logprobability[0,-1,:]
+            lps = ptsampler.logprobability[0,:,:].flatten()
             mean_log_like = np.mean(lps)
             se_log_like = np.std(lps)/np.sqrt(len(lps))
             if mean_log_like > max_mean_log_like + 3*se_log_like:
