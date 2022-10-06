@@ -298,13 +298,13 @@ if __name__ == '__main__':
                 thin = 1
                 max_mean_log_like = mean_log_like
 
-                # Cluster around the high-likelihood point
-                cov = np.cov(pos[0,:,:], rowvar=False)
-                bw = cov/1e2 # 10 times smaller
-                pbest = pos[np.unravel_index(np.argmax(log_like), log_like.shape) + (None,)]
+                # # Cluster around the high-likelihood point
+                # cov = np.cov(pos[0,:,:], rowvar=False)
+                # bw = cov/1e2 # 10 times smaller
+                # pbest = pos[np.unravel_index(np.argmax(log_like), log_like.shape) + (None,)]
 
-                pos = np.random.multivariate_normal(pbest.squeeze(), bw, size=log_like.shape)
-                pos[0,0,:] = pbest.squeeze() # Ensure that the best point ends up in the sampler.
+                # pos = np.random.multivariate_normal(pbest.squeeze(), bw, size=log_like.shape)
+                # pos[0,0,:] = pbest.squeeze() # Ensure that the best point ends up in the sampler.
 
                 continue # Go around again, no convergence checks
             else:
