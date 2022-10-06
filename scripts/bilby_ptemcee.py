@@ -47,7 +47,7 @@ if sys.platform.startswith('darwin'):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='program to run bilby with ptemcee')
-    parser.add_argument('--ini', default='config.ini')
+    parser.add_argument('--ini', default='config.ini', help='default: %(default)s')
     
     args = parser.parse_args()
 
@@ -325,13 +325,22 @@ if __name__ == '__main__':
                 thin = 1
                 max_mean_log_like = mean_log_like
 
-                # # Cluster around the high-likelihood point
-                # cov = np.cov(pos[0,:,:], rowvar=False)
-                # bw = cov/1e2 # 10 times smaller
-                # pbest = pos[np.unravel_index(np.argmax(log_like), log_like.shape) + (None,)]
+                # Now sort the points by log-likelihood, and fill the chain in with only the highest (unique) points:
+                all_pts = ptsampler.chain.reshape(-1, nd)
+                all_logls = ptsampler.logprobability.flatten()
 
-                # pos = np.random.multivariate_normal(pbest.squeeze(), bw, size=log_like.shape)
-                # pos[0,0,:] = pbest.squeeze() # Ensure that the best point ends up in the sampler.
+                _, u = np.unique(all_logls, return_index=True)
+                N_unique = len(u)
+                if N_unique > nt*nw:
+                    print('sorting points by likelihood and re-starting from higest')
+                    all_pts = all_pts[u,:]
+                    all_logls = all_logls[u]
+
+                    i = np.argsort(all_logls)[::-1]
+                    N = nt*nw
+                    pos0 = all_pts[:N,:].reshape((nt, nw, nd))
+                else:
+                    print(f'could not sort points by highest likelihood because only {N_unique} unique points')
 
                 continue # Go around again, no convergence checks
             else:
