@@ -37,6 +37,10 @@ if __name__ == '__main__':
 
     nw = cp.getint('nwalkers', 64)
     nt = cp.getint('ntemps', 8)
+    niter = cp.getint('niter', 128)
+
+    conservative_convergence = cp.getboolean('conservative_convergence', False)
+    converged_ess = cp.getfloat('converged_ess', 0.5*nw*niter)
 
     try_checkpoint = cp.getboolean('try_checkpoint', True)
 
@@ -188,7 +192,6 @@ if __name__ == '__main__':
     # Setup for the sampling loop
     pos = pos0
     nt, nw, nd = pos.shape
-    niter = 128 # If we need at least 50 ACTs to measure the correlation time, this ensures that the ACT will be <~ 4 samples after thinning at convergence.
     thin = 1
     max_mean_log_like = np.NINF
     converged = False
@@ -300,19 +303,31 @@ if __name__ == '__main__':
             plt.savefig(op.join(outdir, 'ensemble-means.png'))
             plt.close()
 
-            # The chain is (Ntemp, Nwalker, Nstep, Ndim), so we take the cold chain with
-            # `[0,...]` then average over the number of walkers, then put in a "singleton"
-            # walker dimension for emcee, which wants (Nstep, Nwalker, Ndim) inputs.
-            try:
-                avg_chain = np.mean(ptsampler.chain[0,...], axis=0)[:, None, :]
-                taus = emcee.autocorr.integrated_time(avg_chain)
-            except emcee.autocorr.AutocorrError as er:
-                print('Looping with bad autocorrelation: ')
-                print(er)
-                continue
-            converged = True
-            break
+            if conservative_convergence:
+                # The chain is (Ntemp, Nwalker, Nstep, Ndim), so we take the cold chain with
+                # `[0,...]` then average over the number of walkers, then put in a "singleton"
+                # walker dimension for emcee, which wants (Nstep, Nwalker, Ndim) inputs.
+                try:
+                    avg_chain = np.mean(ptsampler.chain[0,...], axis=0)[:, None, :]
+                    taus = emcee.autocorr.integrated_time(avg_chain)
+                except emcee.autocorr.AutocorrError as er:
+                    print('Looping with bad autocorrelation: ')
+                    print(er)
+                    continue
+                converged = True
+                break
+            else:
+                ess = az.ess(idata)
+                ess_min = np.inf
+                for k in ess.keys():
+                    ess_min = min(ess_min, ess[k])
 
+                if ess_min > converged_ess:
+                    converged = True
+                    break
+                else:
+                    print(f'Looping with min_ess = {ess_min:.0f} < {converged_ess:.0f}')
+                    continue
 
     chain = {}
     for k in sampler.search_parameter_keys:
