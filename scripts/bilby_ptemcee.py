@@ -39,6 +39,11 @@ if __name__ == '__main__':
     nt = cp.getint('ntemps', 8)
     niter = cp.getint('niter', 128)
 
+    # If `conservative_convergence` is set, we consider converged when emcee's
+    # integrated autocorrelation time is smaller than 1/50 of the chain (i.e.
+    # chain is > 50 ACTs long); when `conservative_convergence` is `False`, we
+    # consider converged when `arviz.ess` returns at least `converged_ess`
+    # effective samples (default is 50% of the total samples).
     conservative_convergence = cp.getboolean('conservative_convergence', False)
     converged_ess = cp.getfloat('converged_ess', 0.5*nw*niter)
 
