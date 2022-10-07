@@ -347,6 +347,9 @@ if __name__ == '__main__':
                 xbest = so.fmin_powell(neg_lp, x0, direc=direc)
                 print(f'Found best point: {xbest}')
                 print('Drawing random points around best')
+
+                lp_best = sum(ptsampler._likeprior(xbest))
+                max_log_like = max(max_log_like, lp_best) # Just in case the sampler returned something shitty
                 
                 pos0 = np.random.multivariate_normal(mean=xbest, cov=pts_cov/100.0, size=(nt, nw))
 
