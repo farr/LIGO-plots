@@ -333,7 +333,7 @@ if __name__ == '__main__':
                 all_pts = ptsampler.chain.reshape(-1, nd)
                 all_logls = ptsampler.logprobability.flatten()
 
-                pts_cov = np.cov(all_pts, rowvar=False)
+                pts_cov = np.cov(ptsampler.chain[0,:,:,:].reshape(-1, nd), rowvar=False)
 
                 _, u = np.unique(all_logls, return_index=True)
 
