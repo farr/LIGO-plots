@@ -313,9 +313,10 @@ if __name__ == '__main__':
             plt.savefig(op.join(outdir, 'ensemble-means.png'))
             plt.close()
 
-            lps = ptsampler.logprobability[0,:,:].flatten()
-            mean_log_like = np.mean(lps)
-            se_log_like = np.std(lps)/np.sqrt(len(lps))
+            lps = ptsampler.logprobability[0,:,:]
+            mean_lps = np.mean(lps, axis=1) # Ensemble average at each timestep
+            mean_log_like = np.mean(mean_lps) # Mean over timesteps
+            se_log_like = np.std(mean_lps)/np.sqrt(len(mean_lps)) # Standard error of mean over timesteps.
             if mean_log_like > max_mean_log_like + 3*se_log_like:
                 print('resetting sampler due to significant log-likelihood increase')
                 print(f'current mean log(post) = {mean_log_like:.3f} (+/- {se_log_like:.3f})')
