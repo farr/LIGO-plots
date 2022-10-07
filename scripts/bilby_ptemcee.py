@@ -352,6 +352,7 @@ if __name__ == '__main__':
                 max_log_like = max(max_log_like, lp_best) # Just in case the sampler returned something shitty
                 
                 pos0 = np.random.multivariate_normal(mean=xbest, cov=pts_cov/100.0, size=(nt, nw))
+                pos0[0,0,:] = xbest # Ensure that the best point makes it in
 
                 continue # Go around again, no convergence checks
             else:
