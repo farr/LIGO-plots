@@ -315,7 +315,7 @@ if __name__ == '__main__':
             plt.savefig(op.join(outdir, 'ensemble-means.png'))
             plt.close()
 
-            max_ll = np.max(ptsampler.lnprobability) # Mean over timesteps
+            max_ll = np.max(ptsampler.logprobability)
             if max_ll > max_log_like + 1:
                 print('resetting sampler due to significant log-likelihood increase')
                 print(f'current max log(post) = {max_ll:.3f}')
