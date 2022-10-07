@@ -343,6 +343,16 @@ if __name__ == '__main__':
                     i = np.argsort(all_logls)[::-1]
                     N = nt*nw
                     pos0 = all_pts[i[:N],:].reshape((nt, nw, nd))
+
+                    # Let's see if including an optimized point will help
+                    print('Optimizing posterior using Powell method')
+                    x0 = pos0[0,0,:]
+                    neg_lp = lambda x: -sum(ptsampler._likeprior(x))
+                    direc = np.array([pos[0,i,:] - x0 for i in range(1,nd+1)])
+                    xbest = so.fmin_powell(neg_lp, x0, direc=direc)
+                    pos0[0,0,:] = xbest
+                    print(f'Found best point: {xbest}')
+                    print('Included in ensemble')
                 else:
                     print(f'could not sort points by highest likelihood because only {N_unique} unique points')
 
