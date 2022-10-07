@@ -370,7 +370,7 @@ if __name__ == '__main__':
                 for k in ess.keys():
                     min_ess = min(min_ess, ess[k])
                 if min_ess < converged_ess:
-                    print(f'Looping with ess = f{min_ess:.0f} < f{converged_ess:.0f}')
+                    print(f'Looping with ess = {min_ess:.0f} < {converged_ess:.0f}')
                     continue
                 else:
                     converged = True
