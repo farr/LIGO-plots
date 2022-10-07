@@ -228,7 +228,7 @@ if __name__ == '__main__':
     pos = pos0
     nt, nw, nd = pos.shape
     thin = 1
-    max_mean_log_like = np.NINF
+    max_log_like = np.NINF
     converged = False
 
     def logprior(x):
@@ -315,19 +315,16 @@ if __name__ == '__main__':
             plt.savefig(op.join(outdir, 'ensemble-means.png'))
             plt.close()
 
-            lps = ptsampler.logprobability[0,:,:]
-            mean_lps = np.mean(lps, axis=1) # Ensemble average at each timestep
-            mean_log_like = np.mean(mean_lps) # Mean over timesteps
-            se_log_like = np.std(mean_lps)/np.sqrt(len(mean_lps)) # Standard error of mean over timesteps.
-            if mean_log_like > max_mean_log_like + 3*se_log_like:
+            max_ll = np.max(ptsampler.lnprobability) # Mean over timesteps
+            if max_ll > max_log_like + 1:
                 print('resetting sampler due to significant log-likelihood increase')
-                print(f'current mean log(post) = {mean_log_like:.3f} (+/- {se_log_like:.3f})')
+                print(f'current max log(post) = {max_ll:.3f}')
                 print('is significantly larger than')
-                print(f'previous best mean log(post) = {max_mean_log_like:.3f}')
+                print(f'previous best mean log(post) = {max_log_like:.3f}')
 
                 # Reset the sampler
                 thin = 1
-                max_mean_log_like = mean_log_like
+                max_log_like = max_ll
 
                 # Now sort the points by log-likelihood, and fill the chain in with only the highest (unique) points:
                 all_pts = ptsampler.chain.reshape(-1, nd)
