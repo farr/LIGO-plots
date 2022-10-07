@@ -333,28 +333,25 @@ if __name__ == '__main__':
                 all_pts = ptsampler.chain.reshape(-1, nd)
                 all_logls = ptsampler.logprobability.flatten()
 
+                pts_cov = np.cov(all_pts, rowvar=False)
+
                 _, u = np.unique(all_logls, return_index=True)
-                N_unique = len(u)
-                if N_unique > nt*nw:
-                    print('sorting points by likelihood and re-starting from higest')
-                    all_pts = all_pts[u,:]
-                    all_logls = all_logls[u]
 
-                    i = np.argsort(all_logls)[::-1]
-                    N = nt*nw
-                    pos0 = all_pts[i[:N],:].reshape((nt, nw, nd))
+                all_pts = all_pts[u,:]
+                all_logls = all_logls[u]
 
-                    # Let's see if including an optimized point will help
-                    print('Optimizing posterior using Powell method')
-                    x0 = pos0[0,0,:]
-                    neg_lp = lambda x: -sum(ptsampler._likeprior(x))
-                    direc = np.array([pos[0,i,:] - x0 for i in range(1,nd+1)])
-                    xbest = so.fmin_powell(neg_lp, x0, direc=direc)
-                    pos0[-1,-1,:] = xbest  # Replace the worst likelihood in the chain with best point.
-                    print(f'Found best point: {xbest}')
-                    print('Included in ensemble')
-                else:
-                    print(f'could not sort points by highest likelihood because only {N_unique} unique points')
+                i = np.argsort(all_logls)[::-1]
+
+                # Let's see if including an optimized point will help
+                print('Optimizing posterior using Powell method')
+                x0 = all_pts[i[0], :]
+                neg_lp = lambda x: -sum(ptsampler._likeprior(x))
+                direc = np.array([all_pts[i[j],:] - x0 for j in range(1,nd+1)])
+                xbest = so.fmin_powell(neg_lp, x0, direc=direc)
+                print(f'Found best point: {xbest}')
+                print('Drawing random points around best')
+                
+                pos0 = np.random.multivariate_normal(mean=xbest, cov=pts_cov/100.0, size=(nt, nw))
 
                 continue # Go around again, no convergence checks
             else:
