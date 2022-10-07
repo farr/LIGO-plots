@@ -1,4 +1,5 @@
 import argparse
+from re import T
 import arviz as az
 import bilby
 import configparser
@@ -72,7 +73,7 @@ if __name__ == '__main__':
     # consider converged when `arviz.ess` returns at least `converged_ess`
     # effective samples (default is 50% of the total samples).
     conservative_convergence = cp.getboolean('conservative_convergence', False)
-    converged_ess = cp.getfloat('converged_ess', 0.5*nw*niter)
+    converged_ess = cp.getfloat('converged_ess', 0.9*nw*niter)
 
     try_checkpoint = cp.getboolean('try_checkpoint', True)
 
@@ -361,12 +362,12 @@ if __name__ == '__main__':
                 converged = True
                 break
             else:
-                tau = emcee.autocorr.integrated_time(ptsampler.chain[0,...].transpose((1,0,2)), quiet=True)
-                max_tau = np.max(tau)
-                neff = nw*ns / max_tau
-
-                if neff < converged_ess:
-                    print(f'Looping with neff = {neff:.0f} < {converged_ess:.0f}')
+                ess = az.ess(idata)
+                min_ess = np.inf
+                for k in ess.keys():
+                    min_ess = min(min_ess, ess[k])
+                if min_ess < converged_ess:
+                    print(f'Looping with ess = f{min_ess:.0f} < f{converged_ess:.0f}')
                     continue
                 else:
                     converged = True
