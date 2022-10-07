@@ -350,7 +350,7 @@ if __name__ == '__main__':
                     neg_lp = lambda x: -sum(ptsampler._likeprior(x))
                     direc = np.array([pos[0,i,:] - x0 for i in range(1,nd+1)])
                     xbest = so.fmin_powell(neg_lp, x0, direc=direc)
-                    pos0[0,-1,:] = xbest  # Replace the worst likelihood in the cold chain.
+                    pos0[-1,-1,:] = xbest  # Replace the worst likelihood in the chain with best point.
                     print(f'Found best point: {xbest}')
                     print('Included in ensemble')
                 else:
