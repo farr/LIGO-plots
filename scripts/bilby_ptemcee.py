@@ -10,7 +10,7 @@ import multiprocessing
 import numpy as np
 import os.path as op
 import pandas as pd
-import ptemcee
+import scipy.optimize as so
 import sys
 from tqdm import tqdm
 import xarray as xr
@@ -342,7 +342,7 @@ if __name__ == '__main__':
 
                     i = np.argsort(all_logls)[::-1]
                     N = nt*nw
-                    pos0 = all_pts[:N,:].reshape((nt, nw, nd))
+                    pos0 = all_pts[i[:N],:].reshape((nt, nw, nd))
                 else:
                     print(f'could not sort points by highest likelihood because only {N_unique} unique points')
 
