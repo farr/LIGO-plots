@@ -214,8 +214,10 @@ if __name__ == '__main__':
     if try_checkpoint and op.exists(cfile):
         pdata = az.from_netcdf(cfile)
         p0 = np.zeros((nt, nw, nd))
+        d = pdata.posterior.draw[-1]
+        c = pdata.posterior.chain
         for i, k in enumerate(sampler.search_parameter_keys):
-            x = pdata.posterior[k].values[:,-1]
+            x = pdata.posterior[k].loc[dict(chain=c, draw=d)]
             p0[:,:,i] = np.tile(x, (nt, 1))
         pos0 = p0
         print('setup from checkpoint')
