@@ -330,8 +330,6 @@ if __name__ == '__main__':
                 all_pts = ptsampler.chain.reshape(-1, nd)
                 all_logls = ptsampler.logprobability.flatten()
 
-                pts_cov = np.cov(ptsampler.chain[0,:,:,:].reshape(-1, nd), rowvar=False)
-
                 _, u = np.unique(all_logls, return_index=True)
 
                 all_pts = all_pts[u,:]
@@ -339,20 +337,10 @@ if __name__ == '__main__':
 
                 i = np.argsort(all_logls)[::-1]
 
-                # Let's see if including an optimized point will help
-                print('Optimizing posterior using Powell method')
-                x0 = all_pts[i[0], :]
-                neg_lp = lambda x: -sum(ptsampler._likeprior(x))
-                direc = np.array([all_pts[i[j],:] - x0 for j in range(1,nd+1)])
-                xbest = so.fmin_powell(neg_lp, x0, direc=direc)
-                print(f'Found best point: {xbest}')
-                print('Drawing random points around best')
-
-                lp_best = sum(ptsampler._likeprior(xbest))
-                max_log_like = max(max_log_like, lp_best) # Just in case the sampler returned something shitty
-                
-                pos0 = np.random.multivariate_normal(mean=xbest, cov=pts_cov/100.0, size=(nt, nw))
-                pos0[0,0,:] = xbest # Ensure that the best point makes it in
+                n = nw*nt
+                if n <= len(u):
+                    # Stack up the `n` highest likelihood points
+                    pos = all_pts[i[:n], :].reshape((nt, nw, nd))
 
                 continue # Go around again, no convergence checks
             else:
